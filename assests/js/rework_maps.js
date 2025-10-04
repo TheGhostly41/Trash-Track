@@ -33,14 +33,20 @@ const TRASH_CANS = [
 ];
 
 // Marker icon
-function binIcon() {
+function binIcon(size = 36, fill = "#4CAF50") {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="18" fill="${fill}" stroke="#FFFFFF" stroke-width="2"/>
+      <svg x="12" y="12" width="24" height="24" viewBox="0 -960 960 960">
+        <path fill="#FFFFFF" d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+      </svg>
+    </svg>
+  `;
+  const url = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
   return {
-    path: google.maps.SymbolPath.CIRCLE,
-    fillColor: "#4CAF50",
-    fillOpacity: 1,
-    strokeColor: "#FFFFFF",
-    strokeWeight: 2,
-    scale: 9,
+    url,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size / 2), // center the icon on the coordinate
   };
 }
 
