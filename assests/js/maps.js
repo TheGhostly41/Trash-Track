@@ -17,8 +17,8 @@ const SAM_IBRAHIM_BOUNDS = {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 16, // change if too many markers are shown
-    minZoom: 16, // Set minimum zoom level
+    zoom: 18, // change if too many markers are shown
+    minZoom: 18, // Set minimum zoom level
     maxZoom: 25, // Set maximum zoom level
 
     // Map bounds restriction
@@ -35,6 +35,15 @@ function initMap() {
     streetViewControl: false,
     rotateControl: true,
     fullscreenControl: false,
+  });
+
+  // test marker
+  const position = { lat: 43.78899692601981, lng: -79.19093841009143 };
+
+  const marker = new AdvancedMarkerElement({
+    map: map,
+    position: position,
+    title: "Trash Can 1",
   });
 }
 
