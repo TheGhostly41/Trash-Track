@@ -36,6 +36,13 @@ function initMap() {
     rotateControl: true,
     fullscreenControl: false,
   });
+
+  const myLatlng = { lat: 43.78899692601981, lng: -79.19093841009143 };
+  const marker = new google.maps.Marker({
+    position: myLatlng,
+    map: map,
+    title: "Trash can here", // Optional title for the marker
+  });
 }
 
 window.initMap = initMap;
