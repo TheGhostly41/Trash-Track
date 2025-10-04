@@ -22,7 +22,7 @@ async function sendMessage() {
   // Add user message
   chatBox.insertAdjacentHTML(
     "beforeend",
-    `<div class="user"><p>${userMessage}</p></div>`
+    `<div class="user" src="../assests/icons/aichatbot.png"><p>${userMessage}</p></div>`
   );
 
   inputEl.value = "";
