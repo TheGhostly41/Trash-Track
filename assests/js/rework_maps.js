@@ -32,6 +32,21 @@ const TRASH_CANS = [
   { position: { lat: 43.788275, lng: -79.191097 }, type: "Litter and Recycle" },
 ];
 
+// Hide all POIs/businesses/buildings (icons + labels)
+const MAP_STYLES_HIDE_POIS = [
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.government", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.medical", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.place_of_worship", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.sports_complex", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.attraction", stylers: [{ visibility: "off" }] },
+  // Hide man-made building footprints
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ visibility: "off" }] },
+];
+
 // Marker icon
 function binIcon(size = 36, fill = "#4CAF50") {
   const svg = `
@@ -53,7 +68,7 @@ function binIcon(size = 36, fill = "#4CAF50") {
 // Build a list of 14 JPGs (update names/paths if yours differ)
 const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
 const IMAGES = Array.from({ length: 14 }, (_, i) => {
-  const n = i + 1;
+  let n = i + 1;
   return `${IMAGE_BASE}${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
 });
 
@@ -84,6 +99,8 @@ function initMap() {
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
+    clickableIcons: false, // disable default Google POI clicks
+    styles: MAP_STYLES_HIDE_POIS, // apply styles to hide POIs/buildings
   });
 
   directionsService = new google.maps.DirectionsService();
