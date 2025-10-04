@@ -1,14 +1,16 @@
-// variables
+// Trash Track - Google Maps (dynamic markers, live user tracking, routing, external "nearest" button)
+
 let map;
 let directionsService;
 let directionsRenderer;
-let userLocationMarker;
+let userMarker;
+let watchId = null;
+let currentDestination = null;
+let nearestMode = false; // if true, re-routes to the nearest bin as the user moves
+const markers = [];
 
-// Center location of Sam Ibrahim (IA) Building 43.78899692601981, -79.19093841009143
-const CENTER_LOCATION = {
-  lat: 43.78899692601981,
-  lng: -79.19093841009143,
-};
+// Center near Sam Ibrahim (IA) Building
+const CENTER_LOCATION = { lat: 43.786507, lng: -79.188647 };
 
 // Map bounds
 const SAM_IBRAHIM_BOUNDS = {
@@ -35,7 +37,7 @@ const TRASH_CAN_LOCATION_2 = { lat: 43.78929, lng: -79.19113 };
   lat: 43.787535, lng: -79.190778
   lat: 43.788183, lng: -79.190510
   lat: 43.788275, lng: -79.191097
-*/ 
+*/
 
 // marker status'
 const RECYCLED_STATUS = `
@@ -63,16 +65,6 @@ const GENERAL_STATUS = `
         `;
 
 function initMap() {
-  // Initialize directions services
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({
-    polylineOptions: {
-      strokeColor: "#4285F4",
-      strokeWeight: 5,
-      strokeOpacity: 0.8,
-    },
-  });
-
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
     zoom: 18,
@@ -87,17 +79,14 @@ function initMap() {
     zoomControl: false,
     cameraControl: false,
     mapTypeControl: false,
-    scaleControl: false,
     streetViewControl: false,
-    rotateControl: true,
     fullscreenControl: false,
   });
 
   // Attach the directions renderer to the map
   directionsRenderer.setMap(map);
 
-  // Get user's location
-  getUserLocation();
+  const infoWindow = new google.maps.InfoWindow();
 
   // Main trash can marker
   const trashMarker = new google.maps.Marker({
@@ -133,92 +122,28 @@ function initMap() {
     });
   });
 
-  // Add a second trash can marker
-  const trashMarker2 = new google.maps.Marker({
-    position: TRASH_CAN_LOCATION_2,
-    map: map,
-    title: "Trash Can 2",
-    animation: google.maps.Animation.DROP,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: "#FF5722",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeWeight: 2,
-      scale: 10,
-    },
-  });
+  // Start live tracking
+  startUserWatch();
 
-  // Add click event to second marker
-  trashMarker2.addListener("click", () => {
-    const infoWindow = new google.maps.InfoWindow({
-      content: ORGANIC_STATUS,
-    });
-
-    infoWindow.open(map, trashMarker2);
-
-    // Add event listener to the button after it's been added to the DOM
-    google.maps.event.addListener(infoWindow, "domready", () => {
-      document.getElementById("routeButton2").addEventListener("click", () => {
-        calculateAndDisplayRoute(TRASH_CAN_LOCATION_2); // Fixed: use the constant TRASH_CAN_LOCATION_2
-        infoWindow.close();
-      });
-    });
-  });
+  // Expose global function for external HTML button
+  window.routeToNearestBin = routeToNearestBin;
 }
 
-// Get user's current location
-function getUserLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
+function startUserWatch() {
+  if (!navigator.geolocation) {
+    console.error("Geolocation is not supported by this browser.");
+    return;
+  }
 
-        // Create a marker for user's location if it doesn't exist
-        if (!userLocationMarker) {
-          userLocationMarker = new google.maps.Marker({
-            position: userLocation,
-            map: map,
-            title: "Your Location",
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: "#1E88E5",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              scale: 8,
-            },
-            zIndex: 100, // Ensure it appears above other markers
-          });
-        } else {
-          // Update existing marker
-          userLocationMarker.setPosition(userLocation);
-        }
+  watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const userLatLng = { lat: position.coords.latitude, lng: position.coords.longitude };
 
-        // For testing purposes, if the user is outside the bounds, place them inside
-        const boundsCenter = {
-          lat: (SAM_IBRAHIM_BOUNDS.north + SAM_IBRAHIM_BOUNDS.south) / 2,
-          lng: (SAM_IBRAHIM_BOUNDS.east + SAM_IBRAHIM_BOUNDS.west) / 2,
-        };
-
-        // Only move the user inside bounds for testing if they're far outside
-        const distanceFromCenter = calculateDistance(userLocation, CENTER_LOCATION);
-        if (distanceFromCenter > 0.5) {
-          // If more than 0.5 km away
-          userLocationMarker.setPosition(boundsCenter);
-        }
-      },
-      (error) => {
-        console.error("Error getting user location:", error);
-        // Place default user location within bounds for demo purposes
-        const defaultUserLocation = { lat: 43.7892, lng: -79.1915 };
-        userLocationMarker = new google.maps.Marker({
-          position: defaultUserLocation,
-          map: map,
-          title: "Default Location",
+      if (!userMarker) {
+        userMarker = new google.maps.Marker({
+          position: userLatLng,
+          map,
+          title: "Your Location",
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             fillColor: "#1E88E5",
@@ -227,59 +152,100 @@ function getUserLocation() {
             strokeWeight: 2,
             scale: 8,
           },
+          zIndex: 100,
         });
+      } else {
+        userMarker.setPosition(userLatLng);
       }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-    alert("Geolocation is not supported by your browser.");
-  }
+
+      // Update route as user moves
+      if (nearestMode && markers.length) {
+        const nearest = findNearestMarker(userMarker.getPosition());
+        const nearestPos = nearest?.getPosition();
+        if (nearestPos && (!currentDestination || !nearestPos.equals(currentDestination))) {
+          currentDestination = nearestPos;
+        }
+      }
+      if (currentDestination) {
+        routeFromUserTo(currentDestination);
+      }
+    },
+    (error) => {
+      console.error("Error getting location:", error);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
 }
 
-// Calculate and display the route between user location and trash can
-function calculateAndDisplayRoute(destination) {
-  if (!userLocationMarker) {
-    alert("Your location is not available. Please enable location services.");
-    return;
-  }
-
-  // const userLocation = userLocationMarker.getPosition();
+function routeFromUserTo(destination) {
+  if (!userMarker) return;
 
   directionsService.route(
     {
-      origin: userLocationMarker.getPosition(),
-      destination: destination,
+      origin: userMarker.getPosition(),
+      destination,
       travelMode: google.maps.TravelMode.WALKING,
     },
     (response, status) => {
       if (status === "OK") {
         directionsRenderer.setDirections(response);
-
-        // ← fit the map to the full route
-        map.fitBounds(response.routes[0].bounds);
-
-        // …existing distance/time InfoWindow code…
       } else {
-        window.alert("Directions request failed due to " + status);
+        window.alert("Directions request failed: " + status);
       }
     }
   );
 }
 
-// Calculate distance between two points in km (for testing user position)
-function calculateDistance(point1, point2) {
-  const R = 6371; // Radius of the earth in km
-  const dLat = deg2rad(point2.lat - point1.lat);
-  const dLng = deg2rad(point2.lng - point1.lng);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(point1.lat)) * Math.cos(deg2rad(point2.lat)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in km
+// Public API - called from external HTML
+function routeToNearestBin() {
+  if (!userMarker) {
+    window.alert("Waiting for your location. Please enable location services.");
+    return;
+  }
+  if (!markers.length) {
+    window.alert("No trash cans available.");
+    return;
+  }
+
+  const nearest = findNearestMarker(userMarker.getPosition());
+  if (!nearest) {
+    window.alert("No nearby trash cans found.");
+    return;
+  }
+
+  // Override any current route with nearest
+  nearestMode = true; // keep snapping to nearest as user moves
+  currentDestination = nearest.getPosition();
+  routeFromUserTo(currentDestination);
 }
 
-function deg2rad(deg) {
-  return deg * (Math.PI / 180);
+// Nearest marker by Haversine distance
+function findNearestMarker(userLatLng) {
+  const uLat = typeof userLatLng.lat === "function" ? userLatLng.lat() : userLatLng.lat;
+  const uLng = typeof userLatLng.lng === "function" ? userLatLng.lng() : userLatLng.lng;
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const m of markers) {
+    const p = m.getPosition();
+    const dist = haversineMeters(uLat, uLng, p.lat(), p.lng());
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = m;
+    }
+  }
+  return nearest;
+}
+
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 window.initMap = initMap;
