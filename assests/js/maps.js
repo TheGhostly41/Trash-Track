@@ -14,9 +14,6 @@ const SAM_IBRAHIM_BOUNDS = {
   west: -79.1935, // moderate boundary
 };
 
-// Map Color
-const { ColorScheme } = await google.maps.importLibrary("core");
-
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
@@ -30,9 +27,6 @@ function initMap() {
       strictBounds: false,
     },
 
-    // Map style
-    ColorScheme: ColorScheme.DARK,
-
     // Map controls
     zoomControl: false,
     cameraControl: false,
@@ -44,5 +38,4 @@ function initMap() {
   });
 }
 
-map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 window.initMap = initMap;
