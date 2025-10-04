@@ -51,10 +51,10 @@ function binIcon(size = 36, fill = "#4CAF50") {
 }
 
 // Build a list of 14 JPGs (update names/paths if yours differ)
-const IMAGE_BASE = "../images"; // resolved relative to pages/maps.html
+const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
 const IMAGES = Array.from({ length: 14 }, (_, i) => {
   const n = String(i + 1).padStart(2, "0");
-  return `${IMAGE_BASE}/img-${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
+  return `${IMAGE_BASE}${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
 });
 
 // Popup content (dynamic image + text + single button)
@@ -80,7 +80,7 @@ function infoContent(type, buttonId, imgUrl) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 13,
+    zoom: 14,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
