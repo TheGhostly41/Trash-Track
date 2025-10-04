@@ -228,7 +228,7 @@ function calculateAndDisplayRoute(destination) {
     return;
   }
 
-  const userLocation = userLocationMarker.getPosition();
+  // const userLocation = userLocationMarker.getPosition();
 
   directionsService.route(
     {
