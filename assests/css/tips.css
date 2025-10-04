@@ -1,32 +1,125 @@
-header{
-    display: flex;
-    font-family: Arial;
+/* Header Styling Improvements */
+header {
+    /* Set the header to be fixed at the top */
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Use the Questrial font for a modern look */
+    font-family: "Questrial", sans-serif;
+    /* Clean white background and subtle shadow for elevation */
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    z-index: 1000;
 
+    display: flex;
     flex-direction: row;
     align-items: center;
+    /* Increased gap for better spacing */
     gap: 15px;
+    /* Add vertical padding */
+    padding: 10px 20px; 
+}
+
+/* Ensure body has padding to prevent content from hiding behind the fixed header */
+body {
+    padding-top: 60px; /* Adjust based on header height */
+    margin: 0;
+    background-color: #f4f4f4; /* Subtle background color */
+}
+
+/* Heading for the page title */
+header h1 {
+    font-size: 24px;
+    font-weight: 600; /* Slightly bolder for the title */
+    color: #333;
+    margin: 0; /* Remove default margin */
 }
 
 a {
     padding: 0;
     margin: 0;
+    /* Ensure the link is treated as a block for the button effect */
+    display: block; 
+    line-height: 0; /* Removes extra line height from the link wrapper */
 }
 
-.back-icon{
-    width: 25px;
+/* Back Button/Icon Styling */
+.back-icon {
+    width: 20px; /* Slightly smaller icon */
     padding: 10px;
     cursor: pointer;
+    border-radius: 50%; /* Make the hover area a circle */
+    /* Smooth transition for visual feedback */
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.back-icon:hover{
-    background-color: rgb(237, 236, 236);
+.back-icon:hover {
+    /* Use a very subtle, light blue for a modern effect */
+    background-color: #e0f7fa;
 }
 
-.back-icon:active{
-    background-color: lightgray;
+.back-icon:active {
+    /* Darker shade and press effect on click */
+    background-color: #b2ebf2;
+    transform: scale(0.95);
+}
 
+/* Main Content and Tip Styling */
+main {
+    padding: 20px;
+    /* Constrain the width for better readability and center it */
+    max-width: 800px; 
+    margin: 0 auto;
 }
 
 h2 { 
-    font-family: Arial;
+    /* Use a clean, readable font */
+    font-family: "Montserrat", sans-serif;
+    font-size: 18px; /* Readable size for a tip */
+    font-weight: 500; /* Medium weight, not too heavy */
+    color: #1a1a1a; /* Dark, strong text color */
+    
+    /* Presentation as a card/block */
+    background-color: white;
+    padding: 15px 20px;
+    margin-bottom: 15px; /* Spacing between tips */
+    border-radius: 8px; /* Rounded corners */
+    border-left: 5px solid rgb(61, 103, 134); /* Accent color on the left */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
+    line-height: 1.4; /* Improved line spacing */
+}
+
+.chatbot-iframe {
+    position: fixed; /* Or 'absolute' if within a specific parent */
+    bottom: 20px; /* Adjust as needed for desired distance from bottom */
+    right: 20px; /* Adjust as needed for desired distance from right */
+    width: 350px; /* Adjust width as needed */
+    height: 450px; /* Adjust height as needed */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 9999; /* Ensure it appears above other content */
+    display: none; /* Initially hide the chatbot */
+    opacity: 0;
+}
+
+.chatbot-iframe.show{
+    opacity: 1;
+    display: block;
+}
+
+.open-button{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1001;
+  background-color: #555;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

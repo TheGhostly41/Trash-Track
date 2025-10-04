@@ -30,9 +30,23 @@
             <h2> Tip 5: Swap disposable water bottles and coffee cups for reusable ones. </h2>
         </main>
 
-        
+        <iframe id="chatvot-popup" class="chatbot-iframe" src="../pages/chat-window.html"
+        style="display: none"> Assistance Pal</iframe>
+        <button class="open-button" id="openChatbotButton"> Assistance Pal</button>
 
 
+        <script> 
+        document.addEventListener('DOMContentLoaded', function() {
+        const openButton = document.getElementById('openChatbotButton');
+        const chatbotIframe = document.getElementById('chatbot-popup');
+
+        openButton.addEventListener('click', function() {
+                if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
+                    chatbotIframe.classList.toggle('show');
+                }
+            });
+        });
+        </script>
 
     </body>
 
