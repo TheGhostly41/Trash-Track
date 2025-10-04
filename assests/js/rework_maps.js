@@ -9,13 +9,17 @@ let currentDestination = null;
 let nearestMode = false; // if true, re-routes to the nearest bin as the user moves
 const markers = [];
 
+// Read ?nearest=1 from the URL to auto-route after load
+const urlParams = new URLSearchParams(window.location.search);
+let pendingNearest = urlParams.get("nearest") === "1";
+
 // Center near Sam Ibrahim (IA) Building
 const CENTER_LOCATION = { lat: 43.786507, lng: -79.188647 };
 
 // All trash cans are "Litter and Recycle"
 const TRASH_CANS = [
-  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Litter and Recycle" },
-  { position: { lat: 43.78929, lng: -79.19113 }, type: "Litter and Recycle" },
+  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Fake, testing bin" },
+  { position: { lat: 43.78929, lng: -79.19113 }, type: "Fake, testing bin" },
   { position: { lat: 43.783867, lng: -79.187603 }, type: "Litter and Recycle" },
   { position: { lat: 43.784115, lng: -79.188015 }, type: "Litter and Recycle" },
   { position: { lat: 43.783558, lng: -79.188208 }, type: "Litter and Recycle" },
@@ -69,7 +73,7 @@ function binIcon(size = 36, fill = "#4CAF50") {
 const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
 const IMAGES = Array.from({ length: 14 }, (_, i) => {
   let n = i + 1;
-  return `${IMAGE_BASE}${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
+  return `${IMAGE_BASE}${n}.jpg`;
 });
 
 // Popup content (dynamic image + text + single button)
@@ -95,7 +99,7 @@ function infoContent(type, buttonId, imgUrl) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 16,
+    zoom: 18,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
@@ -180,7 +184,12 @@ function startUserWatch() {
         userMarker.setPosition(userLatLng);
       }
 
-      // Update route as user moves
+      // If index requested nearest, run it once when we have a position
+      if (pendingNearest) {
+        pendingNearest = false;
+        routeToNearestBin();
+      }
+
       if (nearestMode && markers.length) {
         const nearest = findNearestMarker(userMarker.getPosition());
         const nearestPos = nearest?.getPosition();
@@ -194,6 +203,10 @@ function startUserWatch() {
     },
     (error) => {
       console.error("Error getting location:", error);
+      if (pendingNearest) {
+        pendingNearest = false;
+        window.alert("Unable to get your location to route to the nearest bin.");
+      }
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
