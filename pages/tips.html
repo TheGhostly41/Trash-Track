@@ -8,6 +8,13 @@
         <link rel = "stylesheet" href = "/assests/css/tips.css">
         <link rel = "stylesheet" href = "assests/css/general.css">
 
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
+
+        
+
     </head>
 
     <body>
@@ -30,9 +37,8 @@
             <h2> Tip 5: Swap disposable water bottles and coffee cups for reusable ones. </h2>
         </main>
 
-        <iframe id="chatvot-popup" class="chatbot-iframe" src="../pages/chat-window.html"
-        style="display: none"> Assistance Pal</iframe>
-        <button class="open-button" id="openChatbotButton"> Assistance Pal</button>
+        <iframe id="chatbot-popup" class="chatbot-iframe" src="../pages/chat-window.html"> Assistance Pal</iframe>
+        <button class="open-button" id="openChatbotButton"><img src = "../assests/icons/aichatbot.png" class = "aichatbot-icon"> Litter-ally </button>
 
 
         <script> 
@@ -41,9 +47,7 @@
         const chatbotIframe = document.getElementById('chatbot-popup');
 
         openButton.addEventListener('click', function() {
-                if (chatbotIframe.style.display === 'none' || chatbotIframe.style.display === '') {
-                    chatbotIframe.classList.toggle('show');
-                }
+                chatbotIframe.classList.toggle('show');
             });
         });
         </script>
