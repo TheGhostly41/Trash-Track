@@ -103,31 +103,20 @@ function initMap() {
 
   // Add click event to marker
   trashMarker.addListener("click", () => {
-    if (trashMarker.getAnimation() !== null) {
-      trashMarker.setAnimation(null);
-    } else {
-      trashMarker.setAnimation(google.maps.Animation.BOUNCE);
+    // Create an info window with route button
+    const infoWindow = new google.maps.InfoWindow({
+      content: RECYCLED_STATUS,
+    });
 
-      // Create an info window with route button
-      const infoWindow = new google.maps.InfoWindow({
-        content: RECYCLED_STATUS,
+    infoWindow.open(map, trashMarker);
+
+    // Add event listener to the button after it's been added to the DOM
+    google.maps.event.addListener(infoWindow, "domready", () => {
+      document.getElementById("routeButton1").addEventListener("click", () => {
+        calculateAndDisplayRoute(trashCanLocation);
+        infoWindow.close();
       });
-
-      infoWindow.open(map, trashMarker);
-
-      // Add event listener to the button after it's been added to the DOM
-      google.maps.event.addListener(infoWindow, "domready", () => {
-        document.getElementById("routeButton1").addEventListener("click", () => {
-          calculateAndDisplayRoute(trashCanLocation);
-          infoWindow.close();
-        });
-      });
-
-      // Stop animation after 1.5 seconds
-      setTimeout(() => {
-        trashMarker.setAnimation(null);
-      }, 1500);
-    }
+    });
   });
 
   // Add a second trash can marker
