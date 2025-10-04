@@ -21,6 +21,21 @@ const SAM_IBRAHIM_BOUNDS = {
 // Marker positions
 const TRASH_CAN_LOCATION_1 = { lat: 43.78899692601981, lng: -79.19093841009143 };
 const TRASH_CAN_LOCATION_2 = { lat: 43.78929, lng: -79.19113 };
+/*lat: 43.783867, lng: -79.187603
+  lat: 43.784115, lng: -79.188015
+  lat: 43.783558, lng: -79.188208
+  lat: 43.783873, lng: -79.187717
+  lat: 43.784808, lng: -79.187473
+  lat: 43.785159, lng: -79.187117
+  lat: 43.786194, lng: -79.188097
+  lat: 43.786422, lng: -79.188609
+  lat: 43.786713, lng: -79.189257
+  lat: 43.787052, lng: -79.189949
+  lat: 43.787182, lng: -79.190129
+  lat: 43.787535, lng: -79.190778
+  lat: 43.788183, lng: -79.190510
+  lat: 43.788275, lng: -79.191097
+*/ 
 
 // marker status'
 const RECYCLED_STATUS = `
