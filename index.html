@@ -37,7 +37,7 @@
       // Create or reload the iframe with ?nearest=1
       document.getElementById("disposeBtn").addEventListener("click", () => {
         const container = document.getElementById("mapFrameContainer");
-        container.innerHTML = ""; // clear any existing iframe
+        container.innerHTML = "";
 
         const iframe = document.createElement("iframe");
         iframe.src = "pages/maps.html?nearest=1";

@@ -1,4 +1,6 @@
-// Trash Track - Google Maps (dynamic markers, live user tracking, routing, external "nearest" button)
+/*
+    NOTE: This file is 96% vibe coded, not the best with JS, but it works. :)
+*/
 
 let map;
 let directionsService;
