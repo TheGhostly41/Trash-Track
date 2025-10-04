@@ -8,17 +8,17 @@ const CENTER_LOCATION = {
 
 // Map bounds
 const SAM_IBRAHIM_BOUNDS = {
-  north: 43.791, // moderate boundary
-  south: 43.787, // moderate boundary
-  east: -79.188, // moderate boundary
-  west: -79.1935, // moderate boundary
+  north: 43.7905, // reduced from 43.791
+  south: 43.7875, // increased from 43.787
+  east: -79.1895, // reduced from -79.188
+  west: -79.1925, // increased from -79.1935
 };
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 12, // change if too many markers are shown
-    minZoom: 12, // Set minimum zoom level
+    zoom: 16, // change if too many markers are shown
+    minZoom: 16, // Set minimum zoom level
     maxZoom: 25, // Set maximum zoom level
 
     // Map bounds restriction
