@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 
-
 <html>
-    <head>
-        <title> TrashTrack Bin Finder</title>
+  <head>
+    <title>TrashTrack Bin Finder</title>
 
-        <link rel = "stylesheet" href = "assests/css/index.css">
-        <link rel = "stylesheet" href = "assests/css/general.css">
+    <link rel="stylesheet" href="assests/css/index.css" />
+    <link rel="stylesheet" href="assests/css/general.css" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
+  <body>
+    <header>
+      <div class="name-container">
+        <img class="logo-icon" src="assests/icons/logo.png" />
+        <h1>Trash Track</h1>
+      </div>
 
-    </head>
+      <div class="tooltips">
+        <a href="pages/tips.html"> <img src="assests/icons/tips.svg" class="tips-icon" /></a>
+        <a href="pages/about.html"> <img src="assests/icons/about.svg" class="about-icon" /></a>
+      </div>
+    </header>
 
-
-    <body>
-        <header> 
-            <div class = "name-container"> 
-                <img class = "logo-icon" src = "assests/icons/logo.png">
-                <h1> Trash Track</h1>
-            </div>
-            
-            <div class = "tooltips">
-                <a href = "pages/tips.html"> <img src = "assests/icons/tips.svg" class = "tips-icon"></a>
-                <a href = "pages/about.html"> <img src = "assests/icons/about.svg" class = "about-icon"></a>
-
-            </div>
-            
-        </header>
-
-        <main>
-            <a href = "pages/maps.html"> <button class = "maps-navigate"> Dispose my trash!</button> </a>
-
-        </main>
-
-    </body> 
-
+    <main>
+      <a href="pages/maps.html"> <button class="maps-navigate" onclick="routeToNearestBin()">Dispose my trash!</button> </a>
+    </main>
+  </body>
 </html>
