@@ -29,7 +29,28 @@
     </header>
 
     <main>
-      <a href="pages/maps.html?nearest=1"> <button class="maps-navigate">Dispose my trash!</button> </a>
+      <button class="maps-navigate" id="disposeBtn">Dispose my trash!</button>
+      <div id="mapFrameContainer" style="margin-top: 16px"></div>
     </main>
+
+    <script>
+      // Create or reload the iframe with ?nearest=1
+      document.getElementById("disposeBtn").addEventListener("click", () => {
+        const container = document.getElementById("mapFrameContainer");
+        container.innerHTML = ""; // clear any existing iframe
+
+        const iframe = document.createElement("iframe");
+        iframe.src = "pages/maps.html?nearest=1";
+        iframe.title = "TrashTrack Map";
+        iframe.style.width = "100%";
+        iframe.style.height = "70vh";
+        iframe.style.border = "0";
+        iframe.loading = "lazy";
+
+        container.appendChild(iframe);
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    </script>
+    // ...existing code...
   </body>
 </html>
