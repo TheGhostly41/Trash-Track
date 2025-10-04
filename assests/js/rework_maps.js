@@ -60,7 +60,7 @@ function infoContent(type, buttonId) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 6,
+    zoom: 10,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
