@@ -24,7 +24,6 @@
   padding: 10px;
 }
 
-/* ✅ Correct nested selector syntax */
 .chat .model p {
   background-color: gray;
   padding: 16px;
