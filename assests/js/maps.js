@@ -1,224 +1,171 @@
-// variables
+// Trash Track - Google Maps (dynamic markers, live user tracking, routing, external "nearest" button)
+
 let map;
 let directionsService;
 let directionsRenderer;
-let userLocationMarker;
+let userMarker;
+let watchId = null;
+let currentDestination = null;
+let nearestMode = false; // if true, re-routes to the nearest bin as the user moves
+const markers = [];
 
-// Center location of Sam Ibrahim (IA) Building 43.78899692601981, -79.19093841009143
-const CENTER_LOCATION = {
-  lat: 43.78899692601981,
-  lng: -79.19093841009143,
-};
+// Center near Sam Ibrahim (IA) Building
+const CENTER_LOCATION = { lat: 43.786507, lng: -79.188647 };
 
-// Map bounds
-const SAM_IBRAHIM_BOUNDS = {
-  north: 43.7905,
-  south: 43.7875,
-  east: -79.1895,
-  west: -79.1925,
-};
+// All trash cans are "Litter and Recycle"
+const TRASH_CANS = [
+  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Litter and Recycle" },
+  { position: { lat: 43.78929, lng: -79.19113 }, type: "Litter and Recycle" },
+  { position: { lat: 43.783867, lng: -79.187603 }, type: "Litter and Recycle" },
+  { position: { lat: 43.784115, lng: -79.188015 }, type: "Litter and Recycle" },
+  { position: { lat: 43.783558, lng: -79.188208 }, type: "Litter and Recycle" },
+  { position: { lat: 43.783873, lng: -79.187717 }, type: "Litter and Recycle" },
+  { position: { lat: 43.784808, lng: -79.187473 }, type: "Litter and Recycle" },
+  { position: { lat: 43.785159, lng: -79.187117 }, type: "Litter and Recycle" },
+  { position: { lat: 43.786194, lng: -79.188097 }, type: "Litter and Recycle" },
+  { position: { lat: 43.786422, lng: -79.188609 }, type: "Litter and Recycle" },
+  { position: { lat: 43.786713, lng: -79.189257 }, type: "Litter and Recycle" },
+  { position: { lat: 43.787052, lng: -79.189949 }, type: "Litter and Recycle" },
+  { position: { lat: 43.787182, lng: -79.190129 }, type: "Litter and Recycle" },
+  { position: { lat: 43.787535, lng: -79.190778 }, type: "Litter and Recycle" },
+  { position: { lat: 43.788183, lng: -79.19051 }, type: "Litter and Recycle" },
+  { position: { lat: 43.788275, lng: -79.191097 }, type: "Litter and Recycle" },
+];
 
-// Marker positions
-const TRASH_CAN_LOCATION_1 = { lat: 43.78899692601981, lng: -79.19093841009143 };
-const TRASH_CAN_LOCATION_2 = { lat: 43.78929, lng: -79.19113 };
-/*lat: 43.783867, lng: -79.187603
-  lat: 43.784115, lng: -79.188015
-  lat: 43.783558, lng: -79.188208
-  lat: 43.783873, lng: -79.187717
-  lat: 43.784808, lng: -79.187473
-  lat: 43.785159, lng: -79.187117
-  lat: 43.786194, lng: -79.188097
-  lat: 43.786422, lng: -79.188609
-  lat: 43.786713, lng: -79.189257
-  lat: 43.787052, lng: -79.189949
-  lat: 43.787182, lng: -79.190129
-  lat: 43.787535, lng: -79.190778
-  lat: 43.788183, lng: -79.190510
-  lat: 43.788275, lng: -79.191097
-*/ 
+// Hide all POIs/businesses/buildings (icons + labels)
+const MAP_STYLES_HIDE_POIS = [
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.government", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.medical", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.place_of_worship", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.sports_complex", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.attraction", stylers: [{ visibility: "off" }] },
+  // Hide man-made building footprints
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ visibility: "off" }] },
+];
 
-// marker status'
-const RECYCLED_STATUS = `
-          <div>
-            <strong>Trash Can</strong><br>
-            Status: Recycle Only<br>
-            <button id="routeButton1" style="margin-top: 10px; background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Show Route</button>
-          </div>
-        `;
-
-const ORGANIC_STATUS = `
-          <div>
-            <strong>Trash Can</strong><br>
-            Status: Organic Waste Only<br>
-            <button id="routeButton2" style="margin-top: 10px; background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Show Route</button>
-          </div>
-        `;
-
-const GENERAL_STATUS = `
-          <div>
-            <strong>Trash Can</strong><br>
-            Status: General Waste Only<br>
-            <button id="routeButton3" style="margin-top: 10px; background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Show Route</button>
-          </div>
-        `;
-
-function initMap() {
-  // Initialize directions services
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({
-    polylineOptions: {
-      strokeColor: "#4285F4",
-      strokeWeight: 5,
-      strokeOpacity: 0.8,
-    },
-  });
-
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: CENTER_LOCATION,
-    zoom: 18,
-    minZoom: 18,
-    maxZoom: 25,
-
-    restriction: {
-      latLngBounds: SAM_IBRAHIM_BOUNDS,
-      strictBounds: false,
-    },
-
-    zoomControl: false,
-    cameraControl: false,
-    mapTypeControl: false,
-    scaleControl: false,
-    streetViewControl: false,
-    rotateControl: true,
-    fullscreenControl: false,
-  });
-
-  // Attach the directions renderer to the map
-  directionsRenderer.setMap(map);
-
-  // Get user's location
-  getUserLocation();
-
-  // Main trash can marker
-  const trashMarker = new google.maps.Marker({
-    position: TRASH_CAN_LOCATION_1,
-    map: map,
-    title: "Trash Can",
-    animation: google.maps.Animation.DROP,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: "#4CAF50",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeWeight: 2,
-      scale: 10,
-    },
-  });
-
-  // Add click event to marker
-  trashMarker.addListener("click", () => {
-    // Create an info window with route button
-    const infoWindow = new google.maps.InfoWindow({
-      content: RECYCLED_STATUS,
-    });
-
-    infoWindow.open(map, trashMarker);
-
-    // Add event listener to the button after it's been added to the DOM
-    google.maps.event.addListener(infoWindow, "domready", () => {
-      document.getElementById("routeButton1").addEventListener("click", () => {
-        calculateAndDisplayRoute(TRASH_CAN_LOCATION_1); // Fixed: use the constant TRASH_CAN_LOCATION_1
-        infoWindow.close();
-      });
-    });
-  });
-
-  // Add a second trash can marker
-  const trashMarker2 = new google.maps.Marker({
-    position: TRASH_CAN_LOCATION_2,
-    map: map,
-    title: "Trash Can 2",
-    animation: google.maps.Animation.DROP,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: "#FF5722",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeWeight: 2,
-      scale: 10,
-    },
-  });
-
-  // Add click event to second marker
-  trashMarker2.addListener("click", () => {
-    const infoWindow = new google.maps.InfoWindow({
-      content: ORGANIC_STATUS,
-    });
-
-    infoWindow.open(map, trashMarker2);
-
-    // Add event listener to the button after it's been added to the DOM
-    google.maps.event.addListener(infoWindow, "domready", () => {
-      document.getElementById("routeButton2").addEventListener("click", () => {
-        calculateAndDisplayRoute(TRASH_CAN_LOCATION_2); // Fixed: use the constant TRASH_CAN_LOCATION_2
-        infoWindow.close();
-      });
-    });
-  });
+// Marker icon
+function binIcon(size = 36, fill = "#4CAF50") {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="18" fill="${fill}" stroke="#FFFFFF" stroke-width="2"/>
+      <svg x="12" y="12" width="24" height="24" viewBox="0 -960 960 960">
+        <path fill="#FFFFFF" d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+      </svg>
+    </svg>
+  `;
+  const url = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+  return {
+    url,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size / 2), // center the icon on the coordinate
+  };
 }
 
-// Get user's current location
-function getUserLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
+// Build a list of 14 JPGs (update names/paths if yours differ)
+const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
+const IMAGES = Array.from({ length: 14 }, (_, i) => {
+  let n = i + 1;
+  return `${IMAGE_BASE}${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
+});
 
-        // Create a marker for user's location if it doesn't exist
-        if (!userLocationMarker) {
-          userLocationMarker = new google.maps.Marker({
-            position: userLocation,
-            map: map,
-            title: "Your Location",
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: "#1E88E5",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              scale: 8,
-            },
-            zIndex: 100, // Ensure it appears above other markers
+// Popup content (dynamic image + text + single button)
+function infoContent(type, buttonId, imgUrl) {
+  const fallback = "../assests/icons/trashcan.svg";
+  return `
+    <div style="width:260px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;font-family:Arial, sans-serif;">
+      <div style="height:120px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='${fallback}';"
+             alt="Trash can location" style="max-width:100%;max-height:100%;object-fit:cover;object-position:center;display:block;">
+      </div>
+      <div style="padding:12px;">
+        <div style="font-weight:600;margin-bottom:8px;">${type}</div>
+        <button id="${buttonId}"
+          style="background:#4CAF50;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer">
+          Select Route
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: CENTER_LOCATION,
+    zoom: 16,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    clickableIcons: false, // disable default Google POI clicks
+    styles: MAP_STYLES_HIDE_POIS, // apply styles to hide POIs/buildings
+  });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    suppressMarkers: true,
+    polylineOptions: { strokeColor: "#4285F4", strokeWeight: 5, strokeOpacity: 0.85 },
+  });
+  directionsRenderer.setMap(map);
+
+  const infoWindow = new google.maps.InfoWindow();
+
+  // Create markers
+  TRASH_CANS.forEach(({ position, type }, idx) => {
+    const marker = new google.maps.Marker({
+      position,
+      map,
+      title: type,
+      icon: binIcon(),
+    });
+    // Assign an image to this marker (round-robin across the 14 JPGs)
+    marker.__imgUrl = IMAGES[idx % IMAGES.length];
+    markers.push(marker);
+
+    marker.addListener("click", () => {
+      const btnId = `route-btn-${idx}`;
+      // Pass the marker's assigned image to the popup
+      infoWindow.setContent(infoContent(type, btnId, marker.__imgUrl));
+      infoWindow.open(map, marker);
+
+      google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            nearestMode = false; // manual selection overrides nearest mode
+            currentDestination = marker.getPosition();
+            if (userMarker) routeFromUserTo(currentDestination);
+            infoWindow.close();
           });
-        } else {
-          // Update existing marker
-          userLocationMarker.setPosition(userLocation);
         }
+      });
+    });
+  });
 
-        // For testing purposes, if the user is outside the bounds, place them inside
-        const boundsCenter = {
-          lat: (SAM_IBRAHIM_BOUNDS.north + SAM_IBRAHIM_BOUNDS.south) / 2,
-          lng: (SAM_IBRAHIM_BOUNDS.east + SAM_IBRAHIM_BOUNDS.west) / 2,
-        };
+  // Start live tracking
+  startUserWatch();
 
-        // Only move the user inside bounds for testing if they're far outside
-        const distanceFromCenter = calculateDistance(userLocation, CENTER_LOCATION);
-        if (distanceFromCenter > 0.5) {
-          // If more than 0.5 km away
-          userLocationMarker.setPosition(boundsCenter);
-        }
-      },
-      (error) => {
-        console.error("Error getting user location:", error);
-        // Place default user location within bounds for demo purposes
-        const defaultUserLocation = { lat: 43.7892, lng: -79.1915 };
-        userLocationMarker = new google.maps.Marker({
-          position: defaultUserLocation,
-          map: map,
-          title: "Default Location",
+  // Expose global function for external HTML button
+  window.routeToNearestBin = routeToNearestBin;
+}
+
+function startUserWatch() {
+  if (!navigator.geolocation) {
+    console.error("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const userLatLng = { lat: position.coords.latitude, lng: position.coords.longitude };
+
+      if (!userMarker) {
+        userMarker = new google.maps.Marker({
+          position: userLatLng,
+          map,
+          title: "Your Location",
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             fillColor: "#1E88E5",
@@ -227,59 +174,100 @@ function getUserLocation() {
             strokeWeight: 2,
             scale: 8,
           },
+          zIndex: 100,
         });
+      } else {
+        userMarker.setPosition(userLatLng);
       }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-    alert("Geolocation is not supported by your browser.");
-  }
+
+      // Update route as user moves
+      if (nearestMode && markers.length) {
+        const nearest = findNearestMarker(userMarker.getPosition());
+        const nearestPos = nearest?.getPosition();
+        if (nearestPos && (!currentDestination || !nearestPos.equals(currentDestination))) {
+          currentDestination = nearestPos;
+        }
+      }
+      if (currentDestination) {
+        routeFromUserTo(currentDestination);
+      }
+    },
+    (error) => {
+      console.error("Error getting location:", error);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
 }
 
-// Calculate and display the route between user location and trash can
-function calculateAndDisplayRoute(destination) {
-  if (!userLocationMarker) {
-    alert("Your location is not available. Please enable location services.");
-    return;
-  }
-
-  // const userLocation = userLocationMarker.getPosition();
+function routeFromUserTo(destination) {
+  if (!userMarker) return;
 
   directionsService.route(
     {
-      origin: userLocationMarker.getPosition(),
-      destination: destination,
+      origin: userMarker.getPosition(),
+      destination,
       travelMode: google.maps.TravelMode.WALKING,
     },
     (response, status) => {
       if (status === "OK") {
         directionsRenderer.setDirections(response);
-
-        // ← fit the map to the full route
-        map.fitBounds(response.routes[0].bounds);
-
-        // …existing distance/time InfoWindow code…
       } else {
-        window.alert("Directions request failed due to " + status);
+        window.alert("Directions request failed: " + status);
       }
     }
   );
 }
 
-// Calculate distance between two points in km (for testing user position)
-function calculateDistance(point1, point2) {
-  const R = 6371; // Radius of the earth in km
-  const dLat = deg2rad(point2.lat - point1.lat);
-  const dLng = deg2rad(point2.lng - point1.lng);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(point1.lat)) * Math.cos(deg2rad(point2.lat)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in km
+// Public API - called from external HTML
+function routeToNearestBin() {
+  if (!userMarker) {
+    window.alert("Waiting for your location. Please enable location services.");
+    return;
+  }
+  if (!markers.length) {
+    window.alert("No trash cans available.");
+    return;
+  }
+
+  const nearest = findNearestMarker(userMarker.getPosition());
+  if (!nearest) {
+    window.alert("No nearby trash cans found.");
+    return;
+  }
+
+  // Override any current route with nearest
+  nearestMode = true; // keep snapping to nearest as user moves
+  currentDestination = nearest.getPosition();
+  routeFromUserTo(currentDestination);
 }
 
-function deg2rad(deg) {
-  return deg * (Math.PI / 180);
+// Nearest marker by Haversine distance
+function findNearestMarker(userLatLng) {
+  const uLat = typeof userLatLng.lat === "function" ? userLatLng.lat() : userLatLng.lat;
+  const uLng = typeof userLatLng.lng === "function" ? userLatLng.lng() : userLatLng.lng;
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const m of markers) {
+    const p = m.getPosition();
+    const dist = haversineMeters(uLat, uLng, p.lat(), p.lng());
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = m;
+    }
+  }
+  return nearest;
+}
+
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 window.initMap = initMap;
