@@ -8,10 +8,10 @@ const CENTER_LOCATION = {
 
 // Map bounds
 const SAM_IBRAHIM_BOUNDS = {
-  north: 43.789012,
-  south: 43.787804,
-  east: -79.189579,
-  west: -79.191069,
+  north: 43.79, // increased from 43.789012
+  south: 43.7868, // decreased from 43.787804
+  east: -79.1885, // increased from -79.189579
+  west: -79.1921, // decreased from -79.191687
 };
 
 function initMap() {
@@ -21,10 +21,12 @@ function initMap() {
     minZoom: 18, // Set minimum zoom level
     maxZoom: 25, // Set maximum zoom level
 
+    /*
     restriction: {
       latLngBounds: SAM_IBRAHIM_BOUNDS,
       strictBounds: false,
     },
+    */
 
     // Map controls
     zoomControl: false,
