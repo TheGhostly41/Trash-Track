@@ -20,8 +20,6 @@ const CENTER_LOCATION = { lat: 43.786507, lng: -79.188647 };
 
 // All trash cans are "Litter and Recycle"
 const TRASH_CANS = [
-  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Fake, testing bin" },
-  { position: { lat: 43.78929, lng: -79.19113 }, type: "Fake, testing bin" },
   { position: { lat: 43.783867, lng: -79.187603 }, type: "Litter and Recycle" },
   { position: { lat: 43.784115, lng: -79.188015 }, type: "Litter and Recycle" },
   { position: { lat: 43.783558, lng: -79.188208 }, type: "Litter and Recycle" },
