@@ -50,15 +50,22 @@ function binIcon(size = 36, fill = "#4CAF50") {
   };
 }
 
-// Popup content (image header + text + single button)
-function infoContent(type, buttonId) {
-  const imgUrl = "../images/IMG-20251004-WA0001.jpg"; // relative to pages/maps.html
+// Build a list of 14 JPGs (update names/paths if yours differ)
+const IMAGE_BASE = "../images"; // resolved relative to pages/maps.html
+const IMAGES = Array.from({ length: 14 }, (_, i) => {
+  const n = String(i + 1).padStart(2, "0");
+  return `${IMAGE_BASE}/img-${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
+});
+
+// Popup content (dynamic image + text + single button)
+function infoContent(type, buttonId, imgUrl) {
+  const fallback = "../assests/icons/trashcan.svg";
   return `
     <div style="width:260px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;font-family:Arial, sans-serif;">
-      <div style="
-        height:120px;
-        background: #f5f5f7 url('${imgUrl}') center/80% no-repeat;
-      "></div>
+      <div style="height:120px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='${fallback}';"
+             alt="Trash can location" style="max-width:100%;max-height:100%;object-fit:cover;object-position:center;display:block;">
+      </div>
       <div style="padding:12px;">
         <div style="font-weight:600;margin-bottom:8px;">${type}</div>
         <button id="${buttonId}"
@@ -96,11 +103,14 @@ function initMap() {
       title: type,
       icon: binIcon(),
     });
+    // Assign an image to this marker (round-robin across the 14 JPGs)
+    marker.__imgUrl = IMAGES[idx % IMAGES.length];
     markers.push(marker);
 
     marker.addListener("click", () => {
       const btnId = `route-btn-${idx}`;
-      infoWindow.setContent(infoContent(type, btnId));
+      // Pass the marker's assigned image to the popup
+      infoWindow.setContent(infoContent(type, btnId, marker.__imgUrl));
       infoWindow.open(map, marker);
 
       google.maps.event.addListenerOnce(infoWindow, "domready", () => {
