@@ -1,4 +1,5 @@
 .chat-window {
+  font-family: Arial;
   border: 1px solid lightgray;
   position: absolute;
   bottom: 60px;
@@ -42,6 +43,7 @@
 }
 
 .input-area {
+  font-family: "Montserrat", sans-serif;
   height: 70px;
   display: flex;
   justify-content: center;
@@ -52,6 +54,7 @@
 }
 
 .input-area input {
+  font-family: "Montserrat", sans-serif;
   height: 40px;
   flex: 1;
   padding: 0 10px;
@@ -60,6 +63,7 @@
 }
 
 .input-area button {
+  font-family: "Montserrat", sans-serif;
   height: 40px;
   border: none;
   background-color: black;
@@ -67,4 +71,13 @@
   border-radius: 6px;
   margin-left: 12px;
   cursor: pointer;
+}
+
+.bot{
+  font-family: "Montserrat", sans-serif;
+  background-color: gray;
+  padding: 16px;
+  border-radius: 10px;
+  color: white;
+  width: fit-content;
 }
