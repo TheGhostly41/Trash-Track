@@ -1,10 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+  <style>
+    body{
+      background-color:rgb(241, 245, 239);
+    }
+
+    .flex{
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .container{
+      right: 40px;
+      left: 40px;
+    }
+
+    .collapsible{ 
+      border-radius: 10px;
+      width: 90%;
+      max-width: 1200px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 20px;
+      color: white;
+      font-weight: bold;
+      border:none;
+      margin-top: 20px;
+      margin: 0 auto;
+      text-align: center;
+      cursor: pointer;
+      background-color: black;
+      padding-top: 10px;
+
+    }
+
+    .collapsible:hover{
+      background-color: black;
+    }
+
+    .slide-down-text{
+      border-radius: 10px;
+      overflow: hidden;
+      width: 90%;
+      color: white;
+      max-width: 1200px;
+      max-height: 0;
+      margin: 0 auto;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      transition: max-height 0.4s ease-out, padding 0.3s;
+      background-color:black;
+      padding: 0px 20px;
+    }
+
+    .slide-down-text.open{
+      max-height: 500px;
+      padding: 10px 0px;
+    }
+  </style>
+
   <head> </head>
 
   <body>
-    <h1>About Us</h1>
-    <p>Testing website.</p>
-    <p>Testing website.</p>
+    <h1> ← About Us</h1>
+
+    <div class="flex">
+      <button onclick="toggleText1()" class="collapsible"> Our Mission</button>
+      <div id="hiddenText1" class="slide-down-text"> 
+          <p>
+          TrashTrack is a smart-waste disposal tool designated to help users properly manage their trash. <br> 
+          By selecting a waste type such as, plastic, food scraps, napkins, users are instantly guided to <br>
+          the nearest trash bin accordingly to the user's waste. This tool helps finding trash bins convenient <br>
+          and helps promote sustainable eco-friendly practices by ensuring items are sorted properly and in the <br>
+          right place. TrashTrack's encourages recycling, and keeps the community clean. 
+          </p>
+        </div>
+
+      <button onclick="toggleText2()" class="collapsible"> Development Team </button>
+        <div id="hiddenText2" class="slide-down-text"> 
+          Keerthanan Kantaruban - UFT Scarborough<br>
+          Jose Urbina - York University <br>
+          Jian Heng Fang Gao - York University<br>
+        </div>
+    </div>
+      <script>
+        //Toggle text for Our Mission
+      function toggleText1(){
+        const text = document.getElementById("hiddenText1");
+        text.classList.toggle("open");
+      }
+
+      //Toggle text for Development team
+      function toggleText2(){
+        const text = document.getElementById("hiddenText2");
+        text.classList.toggle("open");
+      }
+
+      </script>
+
+
+    
   </body>
 </html>
