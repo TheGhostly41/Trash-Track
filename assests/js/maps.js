@@ -113,7 +113,7 @@ function initMap() {
     // Add event listener to the button after it's been added to the DOM
     google.maps.event.addListener(infoWindow, "domready", () => {
       document.getElementById("routeButton1").addEventListener("click", () => {
-        calculateAndDisplayRoute(trashCanLocation);
+        calculateAndDisplayRoute(TRASH_CAN_LOCATION_1); // Fixed: use the constant TRASH_CAN_LOCATION_1
         infoWindow.close();
       });
     });
@@ -146,7 +146,7 @@ function initMap() {
     // Add event listener to the button after it's been added to the DOM
     google.maps.event.addListener(infoWindow, "domready", () => {
       document.getElementById("routeButton2").addEventListener("click", () => {
-        calculateAndDisplayRoute(trashCanLocation2);
+        calculateAndDisplayRoute(TRASH_CAN_LOCATION_2); // Fixed: use the constant TRASH_CAN_LOCATION_2
         infoWindow.close();
       });
     });
