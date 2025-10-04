@@ -28,7 +28,7 @@ const TRASH_CANS = [
 
 // Build a styled marker icon based on type
 function iconForType(type) {
-  const color = type === "Recycle" ? "#4CAF50" : "#9E9E9E"; // green for recycle, gray for litter
+  const color = type === "Recycle" ? "#4CAF50" : "#9E9E9E"; // green for recycle, gray for other
   return {
     path: google.maps.SymbolPath.CIRCLE,
     fillColor: color,
@@ -50,9 +50,8 @@ function initMap() {
 
   // Reuse a single info window
   const infoWindow = new google.maps.InfoWindow();
-  const bounds = new google.maps.LatLngBounds();
 
-  // Dynamically add all markers
+  // Dynamically add all markers (no map bounds)
   TRASH_CANS.forEach(({ position, type }) => {
     const marker = new google.maps.Marker({
       position,
@@ -65,20 +64,7 @@ function initMap() {
       infoWindow.setContent(`<div style="min-width:140px;"><strong>${type} Bin</strong></div>`);
       infoWindow.open(map, marker);
     });
-
-    bounds.extend(position);
   });
-
-  // Show all markers on screen
-  if (!bounds.isEmpty()) {
-    map.fitBounds(bounds);
-
-    // Prevent zooming in too far when bounds are tight
-    const listener = google.maps.event.addListenerOnce(map, "bounds_changed", () => {
-      if (map.getZoom() > 19) map.setZoom(19);
-      google.maps.event.removeListener(listener);
-    });
-  }
 }
 
 window.initMap = initMap;
