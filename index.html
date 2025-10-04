@@ -1,41 +1,55 @@
 <!DOCTYPE html>
 
-
 <html>
-    <head>
-        <title> TrashTrack Bin Finder</title>
+  <head>
+    <title>TrashTrack Bin Finder</title>
 
-        <link rel = "stylesheet" href = "assests/css/index.css">
-        <link rel = "stylesheet" href = "assests/css/general.css">
+    <link rel="stylesheet" href="assests/css/index.css" />
+    <link rel="stylesheet" href="assests/css/general.css" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
+  <body>
+    <header>
+      <div class="name-container">
+        <img class="logo-icon" src="assests/icons/logo.png" />
+        <h1>Trash Track</h1>
+      </div>
 
-    </head>
+      <div class="tooltips">
+        <a href="pages/tips.html"> <img src="assests/icons/tips.svg" class="tips-icon" /></a>
+        <a href="pages/about.html"> <img src="assests/icons/about.svg" class="about-icon" /></a>
+      </div>
+    </header>
 
+    <main>
+      <button class="maps-navigate" id="disposeBtn">Dispose my trash!</button>
+      <div id="mapFrameContainer" style="margin-top: 16px"></div>
+    </main>
 
-    <body>
-        <header> 
-            <div class = "name-container"> 
-                <img class = "logo-icon" src = "assests/icons/logo.png">
-                <h1> Trash Track</h1>
-            </div>
-            
-            <div class = "tooltips">
-                <a href = "pages/tips.html"> <img src = "assests/icons/tips.svg" class = "tips-icon"></a>
-                <a href = "pages/about.html"> <img src = "assests/icons/about.svg" class = "about-icon"></a>
+    <script>
+      // Create or reload the iframe with ?nearest=1
+      document.getElementById("disposeBtn").addEventListener("click", () => {
+        const container = document.getElementById("mapFrameContainer");
+        container.innerHTML = "";
 
-            </div>
-            
-        </header>
+        const iframe = document.createElement("iframe");
+        iframe.src = "pages/maps.html?nearest=1";
+        iframe.title = "TrashTrack Map";
+        iframe.style.width = "900px";
+        iframe.style.height = "500px";
+        iframe.style.border = "0";
+        iframe.loading = "lazy";
 
-        <main>
-            <a href = "pages/maps.html"> <button class = "maps-navigate"> Dispose my trash!</button> </a>
-
-        </main>
-
-    </body> 
-
+        container.appendChild(iframe);
+        container.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    </script>
+  </body>
 </html>
