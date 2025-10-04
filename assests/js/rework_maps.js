@@ -50,15 +50,22 @@ function binIcon(size = 36, fill = "#4CAF50") {
   };
 }
 
-// Popup content (single button to route to that bin)
+// Popup content (image header + text + single button)
 function infoContent(type, buttonId) {
+  const imgUrl = "../images/IMG-20251004-WA0001.jpg"; // relative to pages/maps.html
   return `
-    <div style="min-width:160px;">
-      <strong>${type}</strong><br/>
-      <button id="${buttonId}"
-        style="margin-top:8px;background:#4CAF50;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer">
-        Select Route
-      </button>
+    <div style="width:260px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;font-family:Arial, sans-serif;">
+      <div style="
+        height:120px;
+        background: #f5f5f7 url('${imgUrl}') center/80% no-repeat;
+      "></div>
+      <div style="padding:12px;">
+        <div style="font-weight:600;margin-bottom:8px;">${type}</div>
+        <button id="${buttonId}"
+          style="background:#4CAF50;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer">
+          Select Route
+        </button>
+      </div>
     </div>
   `;
 }
@@ -66,7 +73,7 @@ function infoContent(type, buttonId) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 10,
+    zoom: 13,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
