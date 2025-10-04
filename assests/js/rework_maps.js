@@ -61,7 +61,7 @@ function initMap() {
     });
 
     marker.addListener("click", () => {
-      infoWindow.setContent(`<div style="min-width:140px;"><strong>${type} Bin</strong></div>`);
+      infoWindow.setContent(`<div style="min-width:140px;"><strong>Trashcan:</strong> <br> <strong>${type} Bin</strong></div>`);
       infoWindow.open(map, marker);
     });
   });
