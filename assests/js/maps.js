@@ -36,15 +36,6 @@ function initMap() {
     rotateControl: true,
     fullscreenControl: false,
   });
-
-  // test marker
-  const position = { lat: 43.78899692601981, lng: -79.19093841009143 };
-
-  const marker = new AdvancedMarkerElement({
-    map: map,
-    position: position,
-    title: "Trash Can 1",
-  });
 }
 
 window.initMap = initMap;
