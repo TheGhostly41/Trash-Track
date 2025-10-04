@@ -1,4 +1,4 @@
-// Trash Track - Google Maps (dynamic markers, live user tracking, routing, no map-bounds)
+// Trash Track - Google Maps (dynamic markers, live user tracking, routing, external "nearest" button)
 
 let map;
 let directionsService;
@@ -6,14 +6,16 @@ let directionsRenderer;
 let userMarker;
 let watchId = null;
 let currentDestination = null;
+let nearestMode = false; // if true, re-routes to the nearest bin as the user moves
+const markers = [];
 
 // Center near Sam Ibrahim (IA) Building
 const CENTER_LOCATION = { lat: 43.78899692601981, lng: -79.19093841009143 };
 
 // All trash cans are "Litter and Recycle"
 const TRASH_CANS = [
-  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Fake, Test bin" },
-  { position: { lat: 43.78929, lng: -79.19113 }, type: "Fake, Test bin" },
+  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Litter and Recycle" },
+  { position: { lat: 43.78929, lng: -79.19113 }, type: "Litter and Recycle" },
   { position: { lat: 43.783867, lng: -79.187603 }, type: "Litter and Recycle" },
   { position: { lat: 43.784115, lng: -79.188015 }, type: "Litter and Recycle" },
   { position: { lat: 43.783558, lng: -79.188208 }, type: "Litter and Recycle" },
@@ -30,7 +32,7 @@ const TRASH_CANS = [
   { position: { lat: 43.788275, lng: -79.191097 }, type: "Litter and Recycle" },
 ];
 
-// Simple green circular icon for bins
+// Marker icon
 function binIcon() {
   return {
     path: google.maps.SymbolPath.CIRCLE,
@@ -42,7 +44,7 @@ function binIcon() {
   };
 }
 
-// Create popup content with a unique button id
+// Popup content (single button to route to that bin)
 function infoContent(type, buttonId) {
   return `
     <div style="min-width:160px;">
@@ -66,15 +68,14 @@ function initMap() {
 
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
-    suppressMarkers: true, // we manage markers ourselves
+    suppressMarkers: true,
     polylineOptions: { strokeColor: "#4285F4", strokeWeight: 5, strokeOpacity: 0.85 },
   });
   directionsRenderer.setMap(map);
 
-  // Shared InfoWindow
   const infoWindow = new google.maps.InfoWindow();
 
-  // Dynamically add all markers
+  // Create markers
   TRASH_CANS.forEach(({ position, type }, idx) => {
     const marker = new google.maps.Marker({
       position,
@@ -82,6 +83,7 @@ function initMap() {
       title: type,
       icon: binIcon(),
     });
+    markers.push(marker);
 
     marker.addListener("click", () => {
       const btnId = `route-btn-${idx}`;
@@ -92,10 +94,9 @@ function initMap() {
         const btn = document.getElementById(btnId);
         if (btn) {
           btn.addEventListener("click", () => {
+            nearestMode = false; // manual selection overrides nearest mode
             currentDestination = marker.getPosition();
-            if (userMarker) {
-              routeFromUserTo(currentDestination);
-            }
+            if (userMarker) routeFromUserTo(currentDestination);
             infoWindow.close();
           });
         }
@@ -103,8 +104,11 @@ function initMap() {
     });
   });
 
-  // Start live tracking of user
+  // Start live tracking
   startUserWatch();
+
+  // Expose global function for external HTML button
+  window.routeToNearestBin = routeToNearestBin;
 }
 
 function startUserWatch() {
@@ -115,10 +119,7 @@ function startUserWatch() {
 
   watchId = navigator.geolocation.watchPosition(
     (position) => {
-      const userLatLng = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      };
+      const userLatLng = { lat: position.coords.latitude, lng: position.coords.longitude };
 
       if (!userMarker) {
         userMarker = new google.maps.Marker({
@@ -135,13 +136,18 @@ function startUserWatch() {
           },
           zIndex: 100,
         });
-        // Center on first fix; remove this if you don't want recentering initially
-        // map.setCenter(userLatLng);
       } else {
         userMarker.setPosition(userLatLng);
       }
 
-      // Keep route updated as the user moves
+      // Update route as user moves
+      if (nearestMode && markers.length) {
+        const nearest = findNearestMarker(userMarker.getPosition());
+        const nearestPos = nearest?.getPosition();
+        if (nearestPos && (!currentDestination || !nearestPos.equals(currentDestination))) {
+          currentDestination = nearestPos;
+        }
+      }
       if (currentDestination) {
         routeFromUserTo(currentDestination);
       }
@@ -159,18 +165,69 @@ function routeFromUserTo(destination) {
   directionsService.route(
     {
       origin: userMarker.getPosition(),
-      destination: destination,
+      destination,
       travelMode: google.maps.TravelMode.WALKING,
     },
     (response, status) => {
       if (status === "OK") {
         directionsRenderer.setDirections(response);
-        // No map.fitBounds here to keep "no bounds" behavior
       } else {
         window.alert("Directions request failed: " + status);
       }
     }
   );
+}
+
+// Public API - called from external HTML
+function routeToNearestBin() {
+  if (!userMarker) {
+    window.alert("Waiting for your location. Please enable location services.");
+    return;
+  }
+  if (!markers.length) {
+    window.alert("No trash cans available.");
+    return;
+  }
+
+  const nearest = findNearestMarker(userMarker.getPosition());
+  if (!nearest) {
+    window.alert("No nearby trash cans found.");
+    return;
+  }
+
+  // Override any current route with nearest
+  nearestMode = true; // keep snapping to nearest as user moves
+  currentDestination = nearest.getPosition();
+  routeFromUserTo(currentDestination);
+}
+
+// Nearest marker by Haversine distance
+function findNearestMarker(userLatLng) {
+  const uLat = typeof userLatLng.lat === "function" ? userLatLng.lat() : userLatLng.lat;
+  const uLng = typeof userLatLng.lng === "function" ? userLatLng.lng() : userLatLng.lng;
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const m of markers) {
+    const p = m.getPosition();
+    const dist = haversineMeters(uLat, uLng, p.lat(), p.lng());
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = m;
+    }
+  }
+  return nearest;
+}
+
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 window.initMap = initMap;
