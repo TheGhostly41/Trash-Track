@@ -71,11 +71,11 @@ function binIcon(size = 36, fill = "#4CAF50") {
   };
 }
 
-// Build a list of 14 JPGs (update names/paths if yours differ)
-const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
+// Build a list of 14 JGPs with 4-digit suffix: WA0001..WA0014
+const IMAGE_BASE_DIR = "../images"; // resolved relative to pages/maps.html
 const IMAGES = Array.from({ length: 14 }, (_, i) => {
-  let n = i + 1;
-  return `${IMAGE_BASE}${n}.jpg`;
+  const n = String(i + 1).padStart(4, "0"); // 0001..0014
+  return `${IMAGE_BASE_DIR}/IMG-20251004-WA${n}.jgp`;
 });
 
 // Popup content (dynamic image + text + single button)
