@@ -21,7 +21,7 @@ function initMap() {
     minZoom: 12, // Set minimum zoom level
     maxZoom: 25, // Set maximum zoom level
 
-    // Map bounds
+    // Map bounds restriction
     restriction: {
       latLngBounds: SAM_IBRAHIM_BOUNDS,
       strictBounds: false,
