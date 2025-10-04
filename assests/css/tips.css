@@ -1,0 +1,32 @@
+header{
+    display: flex;
+    font-family: Arial;
+
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
+
+a {
+    padding: 0;
+    margin: 0;
+}
+
+.back-icon{
+    width: 25px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.back-icon:hover{
+    background-color: rgb(237, 236, 236);
+}
+
+.back-icon:active{
+    background-color: lightgray;
+
+}
+
+h2 { 
+    font-family: Arial;
+}
