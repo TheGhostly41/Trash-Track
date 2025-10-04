@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel = "stylesheet" href = "/assests/css/chat-window.css">
+    <head> </head>
+
+    <body>
+        <section class="chat-window"> 
+            <button class="close"> close </button>
+            <div class="chat"> 
+                <div class="model">
+                  <p> Hello, how may I be of assistance?</p>      
+                </div>
+            </div>
+
+            <div class="input-area">
+                <input placeholder="enter text" type="text"> 
+                <button> send </button>
+            </div>
+
+    
+
+        </section>
+        
+        <script type = "importmap">
+            {
+                "imports": {
+                    "@google/generative-ai": "https://esm.run/@google/generative-ai"
+                }
+            }
+        </script>
+
+        <script type="module" src="../assests/js/chatBot.js"> </script>
+
+    </body>
+
+</html>
