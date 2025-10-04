@@ -1,74 +1,97 @@
+body {
+    background-color: #f4f4f4; 
+    padding-top: 60px; 
+    margin: 0;
+}
 
 header {
-
-    padding: 0px 10px;
-    font-family: Arial;
+    position: fixed; 
+    right: 0;
+    left: 0;
+    top: 0;
+    padding: 10px 20px; 
+    background-color: white; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: space-between;
-    flex-direction: row;
     align-items: center;
-    text-align: center;
-
+    font-size: 17px;
+    z-index: 1000;
 }
 
+h1 { 
+    font-family: "Questrial", sans-serif; 
+    
+    margin: 0 0 0 10px; 
+    font-weight: 400; 
+    color: #333;
+}
 
+.name-container {
+    display: flex;
+    align-items: center;
+}
 
-.tips-icon, .about-icon{
-    width: 25px;
+.logo-icon {
+    width: 40px; 
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+
+.tips-icon, .about-icon {
+    width: 20px; 
     padding: 10px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border-radius: 50%; 
 }
 
-.about-icon:hover{
-    background-color: rgb(237, 236, 236);
-
-}
-
-.tips-icon:hover{
-    background-color: rgb(237, 236, 236);
+.about-icon:hover, .tips-icon:hover {
+    background-color: #e0f7fa; 
 } 
 
-.about-icon:active{
-    background-color: lightgray;
-}
-.tips-icon:active{
-    background-color: lightgray;
+.about-icon:active, .tips-icon:active {
+    background-color: #b2ebf2;
+    transform: scale(0.98); 
 }
 
-main{ 
+main { 
+    padding: 0px 20px;
     padding-bottom: 10vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+  
+    margin: 0 auto; 
 }
 
-main a{ 
-    border: none;
-    margin: 0;
-    padding: 0;
+main a { 
+    display: block;
+    text-decoration: none; 
     width: 100%;
-    height: 100%;
 }
 
-.maps-navigate{
-    border-radius: 12px;
-    border-style: bold;
+.maps-navigate {
+    font-family: "Montserrat", sans-serif;
+    border-radius: 10px;
+    border: 2px solid #000; 
     width: 100%;
-    padding: 2vh;
-    background-color: black;
+    padding: 15px 20px; 
+    background-color: #1a1a1a; 
     color: white;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 22px; 
 
-    font-size: 20px;
-
-    
-
-
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
     cursor: pointer;
-
-    
+    transition: all 0.3s ease;
+    text-align: center; 
 }
 
-.maps-navigate:hover{
+.maps-navigate:hover {
     background-color: white;
-    color: black;
-
+    color: #1a1a1a;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
 }
