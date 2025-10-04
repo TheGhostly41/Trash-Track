@@ -136,7 +136,7 @@ function startUserWatch() {
           zIndex: 100,
         });
         // Center on first fix; remove this if you don't want recentering initially
-        map.setCenter(userLatLng);
+        // map.setCenter(userLatLng);
       } else {
         userMarker.setPosition(userLatLng);
       }
