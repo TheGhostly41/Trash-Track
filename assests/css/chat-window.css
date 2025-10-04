@@ -1,0 +1,71 @@
+.chat-window {
+  border: 1px solid lightgray;
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  height: 600px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.close {
+  border: none;
+  padding: 8px 0;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+}
+
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* ✅ Correct nested selector syntax */
+.chat .model p {
+  background-color: gray;
+  padding: 16px;
+  border-radius: 10px;
+  color: white;
+  width: fit-content;
+}
+
+.chat .user p {
+  background-color: dodgerblue;
+  color: white;
+  padding: 16px;
+  border-radius: 10px;
+  margin-left: auto;
+  width: fit-content;
+}
+
+.input-area {
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 8px;
+  border-top: 1px solid lightgray;
+  background-color: #f8f8f8;
+}
+
+.input-area input {
+  height: 40px;
+  flex: 1;
+  padding: 0 10px;
+  border: 1px solid lightgray;
+  border-radius: 6px;
+}
+
+.input-area button {
+  height: 40px;
+  border: none;
+  background-color: black;
+  color: white;
+  border-radius: 6px;
+  margin-left: 12px;
+  cursor: pointer;
+}
