@@ -1,15 +1,19 @@
-// Trash Track - Google Maps integration
+// Trash Track - Google Maps (dynamic markers, live user tracking, routing, no map-bounds)
 
 let map;
+let directionsService;
+let directionsRenderer;
+let userMarker;
+let watchId = null;
+let currentDestination = null;
 
 // Center near Sam Ibrahim (IA) Building
 const CENTER_LOCATION = { lat: 43.78899692601981, lng: -79.19093841009143 };
 
-// List all trash cans and their types
-// Type must be either "Litter" or "Recycle"
+// All trash cans are "Litter and Recycle"
 const TRASH_CANS = [
-  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Fake-Testing" },
-  { position: { lat: 43.78929, lng: -79.19113 }, type: "Fake-Testing" },
+  { position: { lat: 43.78899692601981, lng: -79.19093841009143 }, type: "Fake, Test bin" },
+  { position: { lat: 43.78929, lng: -79.19113 }, type: "Fake, Test bin" },
   { position: { lat: 43.783867, lng: -79.187603 }, type: "Litter and Recycle" },
   { position: { lat: 43.784115, lng: -79.188015 }, type: "Litter and Recycle" },
   { position: { lat: 43.783558, lng: -79.188208 }, type: "Litter and Recycle" },
@@ -26,17 +30,29 @@ const TRASH_CANS = [
   { position: { lat: 43.788275, lng: -79.191097 }, type: "Litter and Recycle" },
 ];
 
-// Build a styled marker icon based on type
-function iconForType(type) {
-  const color = type === "Recycle" ? "#4CAF50" : "#9E9E9E"; // green for recycle, gray for other
+// Simple green circular icon for bins
+function binIcon() {
   return {
     path: google.maps.SymbolPath.CIRCLE,
-    fillColor: color,
+    fillColor: "#4CAF50",
     fillOpacity: 1,
     strokeColor: "#FFFFFF",
     strokeWeight: 2,
     scale: 9,
   };
+}
+
+// Create popup content with a unique button id
+function infoContent(type, buttonId) {
+  return `
+    <div style="min-width:160px;">
+      <strong>${type}</strong><br/>
+      <button id="${buttonId}"
+        style="margin-top:8px;background:#4CAF50;color:#fff;border:none;padding:6px 10px;border-radius:4px;cursor:pointer">
+        Select Route
+      </button>
+    </div>
+  `;
 }
 
 function initMap() {
@@ -48,23 +64,113 @@ function initMap() {
     fullscreenControl: false,
   });
 
-  // Reuse a single info window
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    suppressMarkers: true, // we manage markers ourselves
+    polylineOptions: { strokeColor: "#4285F4", strokeWeight: 5, strokeOpacity: 0.85 },
+  });
+  directionsRenderer.setMap(map);
+
+  // Shared InfoWindow
   const infoWindow = new google.maps.InfoWindow();
 
-  // Dynamically add all markers (no map bounds)
-  TRASH_CANS.forEach(({ position, type }) => {
+  // Dynamically add all markers
+  TRASH_CANS.forEach(({ position, type }, idx) => {
     const marker = new google.maps.Marker({
       position,
       map,
-      title: `${type} Bin`,
-      icon: iconForType(type),
+      title: type,
+      icon: binIcon(),
     });
 
     marker.addListener("click", () => {
-      infoWindow.setContent(`<div style="min-width:140px;"><strong>Trashcan:</strong> <br> <strong>${type} Bin</strong></div>`);
+      const btnId = `route-btn-${idx}`;
+      infoWindow.setContent(infoContent(type, btnId));
       infoWindow.open(map, marker);
+
+      google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            currentDestination = marker.getPosition();
+            if (userMarker) {
+              routeFromUserTo(currentDestination);
+            }
+            infoWindow.close();
+          });
+        }
+      });
     });
   });
+
+  // Start live tracking of user
+  startUserWatch();
+}
+
+function startUserWatch() {
+  if (!navigator.geolocation) {
+    console.error("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const userLatLng = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+
+      if (!userMarker) {
+        userMarker = new google.maps.Marker({
+          position: userLatLng,
+          map,
+          title: "Your Location",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: "#1E88E5",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+            scale: 8,
+          },
+          zIndex: 100,
+        });
+        // Center on first fix; remove this if you don't want recentering initially
+        map.setCenter(userLatLng);
+      } else {
+        userMarker.setPosition(userLatLng);
+      }
+
+      // Keep route updated as the user moves
+      if (currentDestination) {
+        routeFromUserTo(currentDestination);
+      }
+    },
+    (error) => {
+      console.error("Error getting location:", error);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function routeFromUserTo(destination) {
+  if (!userMarker) return;
+
+  directionsService.route(
+    {
+      origin: userMarker.getPosition(),
+      destination: destination,
+      travelMode: google.maps.TravelMode.WALKING,
+    },
+    (response, status) => {
+      if (status === "OK") {
+        directionsRenderer.setDirections(response);
+        // No map.fitBounds here to keep "no bounds" behavior
+      } else {
+        window.alert("Directions request failed: " + status);
+      }
+    }
+  );
 }
 
 window.initMap = initMap;
