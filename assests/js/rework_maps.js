@@ -44,7 +44,7 @@ const MAP_STYLES_HIDE_POIS = [
   { featureType: "poi.sports_complex", stylers: [{ visibility: "off" }] },
   { featureType: "poi.attraction", stylers: [{ visibility: "off" }] },
   // Hide man-made building footprints
-  // { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ visibility: "off" }] },
 ];
 
 // Marker icon
@@ -95,7 +95,7 @@ function infoContent(type, buttonId, imgUrl) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 14,
+    zoom: 16,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
