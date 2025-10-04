@@ -37,11 +37,67 @@ function initMap() {
     fullscreenControl: false,
   });
 
-  const myLatlng = { lat: 43.78899692601981, lng: -79.19093841009143 };
-  const marker = new google.maps.Marker({
-    position: myLatlng,
+  // Main trash can marker
+  const trashCanLocation = { lat: 43.78899692601981, lng: -79.19093841009143 };
+  const trashMarker = new google.maps.Marker({
+    position: trashCanLocation,
     map: map,
-    title: "Trash can here", // Optional title for the marker
+    title: "Trash Can",
+    animation: google.maps.Animation.DROP,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: "#4CAF50",
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeWeight: 2,
+      scale: 10,
+    },
+  });
+
+  // Add click event to marker
+  trashMarker.addListener("click", () => {
+    if (trashMarker.getAnimation() !== null) {
+      trashMarker.setAnimation(null);
+    } else {
+      trashMarker.setAnimation(google.maps.Animation.BOUNCE);
+
+      // Create an info window
+      const infoWindow = new google.maps.InfoWindow({
+        content: "<div><strong>Trash Can</strong><br>Status: 45% full<br>Last emptied: Today</div>",
+      });
+
+      infoWindow.open(map, trashMarker);
+
+      // Stop animation after 1.5 seconds
+      setTimeout(() => {
+        trashMarker.setAnimation(null);
+      }, 1500);
+    }
+  });
+
+  // Add a second trash can marker
+  const trashCanLocation2 = { lat: 43.78929, lng: -79.19113 };
+  const trashMarker2 = new google.maps.Marker({
+    position: trashCanLocation2,
+    map: map,
+    title: "Trash Can 2",
+    animation: google.maps.Animation.DROP,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: "#FF5722", // Different color to indicate different status
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeWeight: 2,
+      scale: 10,
+    },
+  });
+
+  // Add click event to second marker
+  trashMarker2.addListener("click", () => {
+    const infoWindow = new google.maps.InfoWindow({
+      content: "<div><strong>Trash Can</strong><br>Status: 85% full<br>Last emptied: Yesterday</div>",
+    });
+    infoWindow.open(map, trashMarker2);
   });
 }
 
