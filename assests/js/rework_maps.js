@@ -10,7 +10,7 @@ let nearestMode = false; // if true, re-routes to the nearest bin as the user mo
 const markers = [];
 
 // Center near Sam Ibrahim (IA) Building
-const CENTER_LOCATION = { lat: 43.78899692601981, lng: -79.19093841009143 };
+const CENTER_LOCATION = { lat: 43.786507, lng: -79.188647 };
 
 // All trash cans are "Litter and Recycle"
 const TRASH_CANS = [
@@ -60,7 +60,7 @@ function infoContent(type, buttonId) {
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: CENTER_LOCATION,
-    zoom: 17,
+    zoom: 12,
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
