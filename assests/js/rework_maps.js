@@ -53,7 +53,7 @@ function binIcon(size = 36, fill = "#4CAF50") {
 // Build a list of 14 JPGs (update names/paths if yours differ)
 const IMAGE_BASE = "../images/IMG-20251004-WA000"; // resolved relative to pages/maps.html
 const IMAGES = Array.from({ length: 14 }, (_, i) => {
-  const n = String(i + 1).padStart(2, "0");
+  const n = i + 1;
   return `${IMAGE_BASE}${n}.jpg`; // e.g., img-01.jpg ... img-14.jpg
 });
 
